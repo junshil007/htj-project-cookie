@@ -1,65 +1,10 @@
-<template>
-  <a-table :columns="columns" :data-source="dataSource" :pagination="false">
-    <template #bodyCell="{ column, text, record }">
-      <!-- 可编辑行 -->
-      <template v-if="['from', 'cookieName', 'to'].includes(column.dataIndex)">
-        <div>
-          <a-input v-if="editableData[record.id]" v-model:value="editableData[record.id][column.dataIndex]" />
-          <span v-else>{{ text }}</span>
-        </div>
-      </template>
-
-      <!-- 操作列 -->
-      <template v-if="column.key === 'action'">
-        <span v-if="editableData[record.id]">
-          <a-button type="text" @click="handleSave(record.id)">保存</a-button>
-          <a-popconfirm title="确认撤销？" @confirm="handleCancel(record.id)">
-            <a>撤销</a>
-          </a-popconfirm>
-        </span>
-        <span v-else>
-          <a-button type="text" @click="handleEdit(record.id)">编辑</a-button>
-          <a-popconfirm title="确认删除？" @confirm="handleDelete(record)">
-            <a-button type="text" danger>删除</a-button>
-          </a-popconfirm>
-        </span>
-      </template>
-    </template>
-  </a-table>
-
-  <a-row class="handle">
-    <a-col :span="4">
-      <a-button type="primary" @click="handleAdd">新增</a-button>
-    </a-col>
-  </a-row>
-
-  <a-row class="handle">
-    <a-col :span="8">
-      是否开启同步：
-      <a-switch v-model:checked="isOpenSync" checked-children="开" un-checked-children="关"></a-switch>
-    </a-col>
-
-    <a-col :span="8">
-      是否为鸿泰吉项目：
-      <a-switch
-        v-model:checked="isHTJProject"
-        @change="onChange"
-        checked-children="是"
-        un-checked-children="否"
-      ></a-switch>
-    </a-col>
-
-    <a-col :span="8" v-if="isHTJProject">
-      是否为测试环境：
-      <a-switch
-        v-model:checked="isDevelop"
-        @change="onChange"
-        checked-children="是"
-        un-checked-children="否"
-      ></a-switch>
-    </a-col>
-  </a-row>
-</template>
+<!--
+ * @Descripttion: 
+ * @Author: junshi junshi@ssc-hn.com
+ * @Date: 2022-11-17
+ * @LastEditors: junshi junshi@ssc-hn.com
+ * @LastEditTime: 2022-11-29
+-->
 
 <script lang="ts" setup>
 import { onMounted, reactive, ref, unref, watch } from "vue";
@@ -125,7 +70,6 @@ onMounted(async () => {
   // 从 localStorage 初始化数据
   const storage = await getStorage();
   console.log(storage, " 从 localStorage 初始化数据");
-
   const domainList = !isEmpty(storage) ? (Object.values(storage[LIST_KEY]) as ICookieTableDataSource[]) : [];
 
   if (!isEmpty(domainList)) {
@@ -162,7 +106,8 @@ async function handleSave(rowId: string) {
 }
 
 function handleDelete(item) {
-  dataSource.value.filter((i) => i !== item);
+  console.log(item, "item");
+  dataSource.value = dataSource.value.filter((i) => i !== item);
 }
 
 function handleCancel(rowId: string) {
@@ -194,6 +139,66 @@ function onChange() {
   });
 }
 </script>
+<template>
+  <a-table :columns="columns" :data-source="dataSource" :pagination="false">
+    <template #bodyCell="{ column, text, record }">
+      <!-- 可编辑行 -->
+      <template v-if="['from', 'cookieName', 'to'].includes(column.dataIndex)">
+        <div>
+          <a-input v-if="editableData[record.id]" v-model:value="editableData[record.id][column.dataIndex]" />
+          <span v-else>{{ text }}</span>
+        </div>
+      </template>
+
+      <!-- 操作列 -->
+      <template v-if="column.key === 'action'">
+        <span v-if="editableData[record.id]">
+          <a-button type="link" @click="handleSave(record.id)">保存</a-button>
+          <a-button type="link" danger @click="handleCancel(record.id)">撤销</a-button>
+        </span>
+        <span v-else>
+          <a-button type="text" @click="handleEdit(record.id)">编辑</a-button>
+          <a-popconfirm title="确认删除？" @confirm="handleDelete(record)">
+            <a-button type="text" danger>删除</a-button>
+          </a-popconfirm>
+        </span>
+      </template>
+    </template>
+  </a-table>
+
+  <a-row class="handle">
+    <a-col :span="4">
+      <a-button type="primary" @click="handleAdd">新增</a-button>
+    </a-col>
+  </a-row>
+
+  <a-row class="handle">
+    <a-col :span="8">
+      是否开启同步：
+      <a-switch v-model:checked="isOpenSync" checked-children="开" un-checked-children="关"></a-switch>
+    </a-col>
+
+    <a-col :span="8">
+      是否为鸿泰吉项目：
+      <a-switch
+        v-model:checked="isHTJProject"
+        @change="onChange"
+        checked-children="是"
+        un-checked-children="否"
+      ></a-switch>
+    </a-col>
+
+    <a-col :span="8" v-if="isHTJProject">
+      是否为测试环境：
+      <a-switch
+        v-model:checked="isDevelop"
+        @change="onChange"
+        checked-children="是"
+        un-checked-children="否"
+      ></a-switch>
+    </a-col>
+  </a-row>
+</template>
 
 <style>
 .handle {
